@@ -624,16 +624,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('btn-descargar-pdf')?.addEventListener('click', () => {
+    document.getElementById('btn-descargar-pdf')?.addEventListener('click', async () => {
         const elemento = document.getElementById('tema-resumen');
+        if(!elemento) return;
+
         const nombreArchivo = (temaActualInfo?.titulo || 'Resumen').replace(/\s+/g, '_') + '.pdf';
+
+        // Asegura que MathJax termine de dibujar las fórmulas antes de capturar el PDF.
+        // Esto no modifica el contenido guardado ni la vista del estudiante.
+        if(window.MathJax?.typesetPromise) {
+            try { await MathJax.typesetPromise([elemento]); } catch(_) {}
+        }
+
         const opt = {
             margin:       0.5,
             filename:     nombreArchivo,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
+            html2canvas:  {
+                scale: 2,
+                useCORS: true,
+                // MathJax añade una copia MathML invisible para accesibilidad.
+                // html2canvas puede interpretarla como visible y duplicar C, q, ΔT, etc.
+                // Se elimina SOLO en la copia temporal usada para crear el PDF.
+                onclone: (clonedDocument) => {
+                    const resumenPDF = clonedDocument.getElementById('tema-resumen');
+                    if(!resumenPDF) return;
+                    resumenPDF.querySelectorAll('mjx-assistive-mml').forEach(el => el.remove());
+                }
+            },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
+
         html2pdf().set(opt).from(elemento).save();
     });
 
