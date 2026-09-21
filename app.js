@@ -245,8 +245,8 @@ window.regresarAtrasGlobal = function() {
 
     if(vistaActual === 'view-tema') {
         // Si está dentro de Textos, Videos, Imágenes o Evaluación, primero vuelve al menú del tema.
-        const btnVolverRecursos = document.getElementById('btn-volver-recursos');
-        if(btnVolverRecursos && !btnVolverRecursos.classList.contains('hidden')) {
+        const menuRecursos = document.getElementById('menu-recursos');
+        if(menuRecursos && menuRecursos.classList.contains('hidden')) {
             return window.volverRecursos();
         }
 
@@ -291,16 +291,12 @@ window.mostrarRecurso = function(id, nombreRecurso) {
     document.getElementById('menu-recursos').classList.add('hidden');
     document.querySelectorAll('.recurso-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    document.getElementById('btn-volver-modulo').classList.add('hidden');
-    document.getElementById('btn-volver-recursos').classList.remove('hidden');
     document.getElementById('subtitulo-recursos').textContent = nombreRecurso;
 }
 
 window.volverRecursos = function() {
     document.getElementById('menu-recursos').classList.remove('hidden');
     document.querySelectorAll('.recurso-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById('btn-volver-recursos').classList.add('hidden');
-    document.getElementById('btn-volver-modulo').classList.remove('hidden');
     document.getElementById('subtitulo-recursos').textContent = "Recursos de aprendizaje";
 }
 
@@ -609,9 +605,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarDatosAdmin();
     });
 
-    document.getElementById('btn-volver-modulo')?.addEventListener('click', () => {
-        if(moduloSeleccionado) window.cargarModulo(moduloSeleccionado.id, moduloSeleccionado.nombre, moduloSeleccionado.materiaId, moduloSeleccionado.materiaNombre, moduloSeleccionado.evaluacion);
-    });
 
     // Login
     document.getElementById('btn-login-email')?.addEventListener('click', async () => {
@@ -789,7 +782,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resDiv.innerHTML = `<h3>Puntaje Obtenido</h3><p style="font-size: 36px; font-weight: 800; color: var(--primary-light); margin:0;">${puntaje} / ${quizActivo.length}</p>`;
         resDiv.classList.remove('hidden');
         document.getElementById('btn-enviar-quiz').classList.add('hidden');
-        document.getElementById('btn-volver-tema-desde-quiz').classList.remove('hidden');
 
         await setDoc(doc(db, "usuarios", usuarioActual.uid, "progreso_temas", temaActualInfo.id), {
             status: "green", timestamp: new Date().toISOString()
@@ -811,7 +803,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).catch(() => {});
     });
 
-    document.getElementById('btn-volver-tema-desde-quiz')?.addEventListener('click', () => mostrarVista('view-tema'));
 });
 
 // ==========================================
@@ -1100,7 +1091,7 @@ window.abrirTema = async function(temaId, matId, matNombre, modNombre) {
         temaActualInfo = { id: temaId, ...data };
 
         // Si el tema se abrió directamente desde el árbol lateral, reconstruye el módulo actual
-        // para que el botón "Volver a módulos" siga funcionando correctamente.
+        // para que el botón global de regreso mantenga correctamente el flujo hacia el módulo.
         if(data.modulo_id && (!moduloSeleccionado || moduloSeleccionado.id !== data.modulo_id)) {
             const modSnap = await getDoc(doc(db, "modulos", data.modulo_id));
             const modData = modSnap.exists() ? modSnap.data() : {};
@@ -1209,7 +1200,6 @@ window.iniciarQuiz = function(preguntas) {
     document.getElementById('quiz-titulo').textContent = temaActualInfo.titulo;
     document.getElementById('quiz-subtitulo').textContent = "Revisión de respuestas guardadas:";
     document.getElementById('btn-enviar-quiz').classList.remove('hidden');
-    document.getElementById('btn-volver-tema-desde-quiz').classList.add('hidden');
     document.getElementById('quiz-resultado').classList.add('hidden');
 
     const cont = document.getElementById('quiz-preguntas-container');
