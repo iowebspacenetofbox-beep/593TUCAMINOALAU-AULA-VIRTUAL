@@ -125,19 +125,8 @@
             letter-spacing: -.02em;
         }
 
-        .sidebar-brand::before {
-            content: "593";
-            display: grid;
-            place-items: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #2563EB, #7C3AED);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 900;
-            box-shadow: 0 10px 24px rgba(37,99,235,.35);
-        }
+        /* Encabezado limpio: sin la marca 593, solo el nombre del panel. */
+        .sidebar-brand::before { display: none; content: none; }
 
         .btn-toggle-sidebar {
             background: rgba(255,255,255,.06);
@@ -345,18 +334,31 @@
         @keyframes heroShine { 0%,72% { transform: translateX(-110%); } 88%,100% { transform: translateX(110%); } }
 
         .home-hero-copy { position: relative; z-index: 2; min-width: 0; }
+        /* Banner superior del inicio: ocupa todo el ancho del hero y conserva proporciones. */
         .home-logo-wrap {
-            width: fit-content;
-            padding: 9px;
+            position: relative;
+            z-index: 2;
+            grid-column: 1 / -1;
+            width: 100%;
+            padding: 12px 16px;
             border-radius: 22px;
-            background: rgba(255,255,255,.74);
-            border: 1px solid rgba(255,255,255,.82);
+            background: rgba(255,255,255,.82);
+            border: 1px solid rgba(255,255,255,.92);
             box-shadow: 0 18px 45px rgba(37,99,235,.10);
-            margin-bottom: 20px;
-            animation: logoFloat 4.5s ease-in-out infinite;
+            margin: 0;
+            overflow: hidden;
         }
-        .home-logo-wrap img { display: block; max-width: 230px; width: min(230px, 48vw); border-radius: 15px; }
-        @keyframes logoFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .home-logo-wrap img {
+            display: block;
+            width: 100%;
+            max-width: none;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 15px;
+            margin: 0 auto;
+        }
 
         .home-eyebrow {
             display: inline-flex;
@@ -1015,7 +1017,8 @@
             #user-display-name { display: none; }
             .home-hero { padding: 20px; border-radius: 22px; }
             .titulo-animado { font-size: clamp(34px, 11vw, 48px); }
-            .home-logo-wrap img { width: min(210px, 62vw); }
+            .home-logo-wrap { padding: 9px 10px; }
+            .home-logo-wrap img { width: 100%; max-height: 150px; }
             .btn-recurso { width: 100%; }
             .pista-container { padding-left: 24px; padding-right: 24px; }
             .admin-save-row { flex-direction: column; }
@@ -1042,7 +1045,7 @@
     <!-- BARRA LATERAL IZQUIERDA -->
     <aside id="sidebar" class="hidden">
         <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">593 TucaminoalaU</a>
+            <a href="#" class="sidebar-brand">Panel de navegación</a>
             <!-- Botón de contraer seguro vía onclick nativo -->
             <button class="btn-toggle-sidebar" id="btn-collapse-sidebar" title="Contraer menú" onclick="document.getElementById('sidebar').classList.add('collapsed'); document.getElementById('btn-expand-sidebar').classList.remove('hidden');"><i class="fas fa-chevron-left"></i></button>
         </div>
@@ -1069,7 +1072,7 @@
                 <div id="top-title">Inicio</div>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 13px; font-weight: 600;" id="user-display-name">593 TucaminoalaU</span>
+                <span style="font-size: 13px; font-weight: 700;" id="user-display-name">Usuario</span>
                 <button id="btn-ir-admin" class="btn-danger hidden" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-cog"></i> Admin</button>
                 <button class="btn-outline btn-logout" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-sign-out-alt"></i> Salir</button>
             </div>
@@ -1107,10 +1110,11 @@
         <section id="view-inicio" class="content-container hidden">
             <div class="home-shell">
                 <div class="home-hero">
+                    <div class="home-logo-wrap">
+                        <img src="imagenes/logo.png" alt="593 TucaminoalaU">
+                    </div>
+
                     <div class="home-hero-copy">
-                        <div class="home-logo-wrap">
-                            <img src="imagenes/logo.png" alt="593 TucaminoalaU">
-                        </div>
                         <div class="home-eyebrow"><i class="fas fa-graduation-cap"></i> Aula Virtual 593 TucaminoalaU</div>
                         <h1 class="titulo-animado">¡Bienvenido/a al Aula Virtual!</h1>
                         <p class="home-subtitle">¡Prepara tu camino a la Universidad de forma interactiva!</p>
@@ -1496,10 +1500,12 @@
             <!-- Tab: Alumnos -->
             <div id="admin-tab-alumnos" class="tab-content hidden">
                 <div class="instruction-card" style="margin-top: 0;">
-                    <h3>Añadir Correo Autorizado</h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <h3>Añadir Alumno Autorizado</h3>
+                    <p style="margin:-4px 0 14px;color:var(--text-light);font-size:12px;line-height:1.5;">Asocia un nombre al correo. Ese nombre será el que el estudiante verá en la esquina superior derecha al iniciar sesión.</p>
+                    <div style="display: grid; grid-template-columns: minmax(180px,.8fr) minmax(240px,1.2fr) auto; gap: 10px; margin-bottom: 20px; align-items:center;">
+                        <input type="text" id="admin-nuevo-alumno-nombre" class="input-text" placeholder="Nombre del estudiante" autocomplete="off">
                         <input type="email" id="admin-nuevo-alumno-email" class="input-text" placeholder="estudiante@gmail.com">
-                        <button id="btn-admin-agregar-alumno" class="btn-success">Autorizar</button>
+                        <button id="btn-admin-agregar-alumno" class="btn-success"><i class="fas fa-user-plus"></i> Autorizar</button>
                     </div>
                     <h4>Alumnos Autorizados</h4>
                     <div id="admin-lista-alumnos">Cargando...</div>
