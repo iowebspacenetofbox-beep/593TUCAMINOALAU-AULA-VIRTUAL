@@ -273,6 +273,25 @@
         .content-container { padding: 34px 38px 48px; max-width: 1280px; margin: 0 auto; width: 100%; }
         #top-title { margin: 0; font-size: 14px; font-weight: 800; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+        /* Botón global de regreso: aparece en todas las vistas excepto Inicio/Login. */
+        .btn-global-back {
+            background: rgba(255,255,255,.90);
+            color: #334155;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(15,23,42,.05);
+            flex-shrink: 0;
+        }
+        .btn-global-back:hover {
+            background: #FFF;
+            color: #1D4ED8;
+            border-color: #BFDBFE;
+            box-shadow: 0 8px 20px rgba(37,99,235,.10);
+        }
+
         .view-enter { animation: viewReveal .42s cubic-bezier(.2,.8,.2,1) both; }
         @keyframes viewReveal {
             from { opacity: 0; transform: translateY(10px) scale(.995); }
@@ -1081,6 +1100,7 @@
             <div class="top-navbar-left">
                 <!-- Botón de expandir seguro vía onclick nativo -->
                 <button class="btn-toggle-sidebar hidden" id="btn-expand-sidebar" title="Expandir menú" onclick="document.getElementById('sidebar').classList.remove('collapsed'); document.getElementById('btn-expand-sidebar').classList.add('hidden');"><i class="fas fa-chevron-right"></i></button>
+                <button class="btn-global-back hidden" id="btn-global-back" type="button" title="Regresar" aria-label="Regresar"><i class="fas fa-arrow-left"></i><span>Regresar</span></button>
                 <div id="top-title">Inicio</div>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
