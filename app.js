@@ -690,10 +690,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('btn-admin-agregar-alumno')?.addEventListener('click', async () => {
+        const nombre = document.getElementById('admin-nuevo-alumno-nombre')?.value.trim() || '';
         const email = document.getElementById('admin-nuevo-alumno-email').value.trim().toLowerCase();
+        if(!nombre) return alert("Escribe el nombre del estudiante.");
         if(!email) return alert("Escribe un correo válido.");
         try {
-            await setDoc(doc(db, "alumnos_autorizados", email), { email, fecha: new Date().toISOString() });
+            await setDoc(doc(db, "alumnos_autorizados", email), {
+                email,
+                nombre,
+                fecha: new Date().toISOString()
+            }, { merge: true });
+            document.getElementById('admin-nuevo-alumno-nombre').value = "";
             document.getElementById('admin-nuevo-alumno-email').value = "";
             alert("Alumno autorizado correctamente.");
             cargarDatosAdmin();
@@ -755,21 +762,32 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
     if(user) {
-        if(user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        const esAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        let nombreVisible = "593 TucaminoalaU";
+
+        if(!esAdmin) {
             const authSnap = await getDoc(doc(db, "alumnos_autorizados", user.email.toLowerCase()));
             if(!authSnap.exists()) {
                 const errBox = document.getElementById('login-error');
                 if(errBox) { errBox.innerHTML = `El correo <b>${user.email}</b> no está autorizado. Contacta a tu docente.`; errBox.classList.remove('hidden'); }
                 await signOut(auth); return;
             }
+
+            const datosAlumno = authSnap.data() || {};
+            nombreVisible = String(datosAlumno.nombre || user.displayName || user.email.split('@')[0] || 'Estudiante').trim();
         }
+
         usuarioActual = user;
-        document.getElementById('user-display-name').textContent = "593 TucaminoalaU";
+        const userDisplay = document.getElementById('user-display-name');
+        if(userDisplay) {
+            userDisplay.textContent = nombreVisible;
+            userDisplay.title = esAdmin ? "Administrador" : user.email;
+        }
         document.getElementById('sidebar').classList.remove('hidden');
         document.getElementById('top-navbar').classList.remove('hidden');
 
         const btnAdmin = document.getElementById('btn-ir-admin');
-        if(user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) btnAdmin?.classList.remove('hidden');
+        if(esAdmin) btnAdmin?.classList.remove('hidden');
         else btnAdmin?.classList.add('hidden');
 
         cargarEstructuraGlobal();
@@ -1249,10 +1267,18 @@ async function cargarDatosAdmin() {
 
     if(snapAlu.empty) contAlu.innerHTML = `<div class="admin-empty-state"><i class="fas fa-user"></i><span>No hay alumnos autorizados.</span></div>`;
     else {
-        contAlu.innerHTML = snapAlu.docs.map(d => `<div class="admin-list-row">
-            <span>${escapeHTML(d.data().email || d.id)}</span>
-            <button class="btn-danger admin-mini-btn" onclick="eliminarDocumento('alumnos_autorizados', '${d.id}')"><i class="fas fa-trash"></i></button>
-        </div>`).join('');
+        contAlu.innerHTML = snapAlu.docs.map(d => {
+            const data = d.data() || {};
+            const nombre = data.nombre || 'Nombre pendiente';
+            const email = data.email || d.id;
+            return `<div class="admin-list-row">
+                <div class="admin-row-main">
+                    <strong>${escapeHTML(nombre)}</strong>
+                    <small>${escapeHTML(email)}</small>
+                </div>
+                <button class="btn-danger admin-mini-btn" onclick="eliminarDocumento('alumnos_autorizados', '${d.id}')"><i class="fas fa-trash"></i></button>
+            </div>`;
+        }).join('');
     }
 
     // Si el organizador está visible, mantenlo sincronizado.
