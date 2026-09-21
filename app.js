@@ -222,9 +222,64 @@ window.mostrarVista = function(idVista) {
         actualizarRuta();
     }
 
+    // El botón global de regreso se mantiene fuera del Inicio y del Login.
+    const btnRegresar = document.getElementById('btn-global-back');
+    if(btnRegresar) {
+        btnRegresar.classList.toggle('hidden', idVista === 'view-inicio' || idVista === 'view-login');
+    }
+
     const main = document.getElementById('main-content');
     if(main && idVista !== 'view-tema') main.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// Regreso lógico y seguro según la vista actual.
+// No depende del historial del navegador, por lo que conserva el flujo interno del aula.
+window.regresarAtrasGlobal = function() {
+    const vistaActual = [...document.querySelectorAll('#main-content > section')]
+        .find(sec => !sec.classList.contains('hidden'))?.id || '';
+
+    if(vistaActual === 'view-quiz') {
+        if(temaActualInfo) return mostrarVista('view-tema');
+        return mostrarVista('view-inicio');
+    }
+
+    if(vistaActual === 'view-tema') {
+        // Si está dentro de Textos, Videos, Imágenes o Evaluación, primero vuelve al menú del tema.
+        const btnVolverRecursos = document.getElementById('btn-volver-recursos');
+        if(btnVolverRecursos && !btnVolverRecursos.classList.contains('hidden')) {
+            return window.volverRecursos();
+        }
+
+        if(moduloSeleccionado?.id) {
+            return window.cargarModulo(
+                moduloSeleccionado.id,
+                moduloSeleccionado.nombre,
+                moduloSeleccionado.materiaId,
+                moduloSeleccionado.materiaNombre,
+                moduloSeleccionado.evaluacion
+            );
+        }
+
+        if(materiaSeleccionada?.id) {
+            return window.cargarMateria(materiaSeleccionada.id, materiaSeleccionada.nombre);
+        }
+
+        return mostrarVista('view-inicio');
+    }
+
+    if(vistaActual === 'view-modulo') {
+        if(materiaSeleccionada?.id) {
+            return window.cargarMateria(materiaSeleccionada.id, materiaSeleccionada.nombre);
+        }
+        return mostrarVista('view-inicio');
+    }
+
+    if(vistaActual === 'view-materia' || vistaActual === 'view-admin') {
+        return mostrarVista('view-inicio');
+    }
+
+    return mostrarVista('view-inicio');
+};
 
 window.toggleTreeNode = function(id) {
     const el = document.getElementById(id);
@@ -514,6 +569,8 @@ window.cancelarEdicionTema = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    document.getElementById('btn-global-back')?.addEventListener('click', window.regresarAtrasGlobal);
 
     // Inicialización del editor visual y acciones enriquecidas.
     const editor = getRichEditor();
