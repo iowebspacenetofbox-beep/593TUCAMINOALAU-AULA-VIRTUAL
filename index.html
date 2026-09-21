@@ -787,12 +787,33 @@
             line-height: 1.78 !important;
             font-size: 15.5px !important;
             background: linear-gradient(180deg, #FBFDFF, #F8FAFC) !important;
-            padding: 26px !important;
+            padding: 24px 26px !important;
             border-radius: 15px !important;
             border: 1px solid #E6ECF4;
         }
-        #tema-resumen h1, #tema-resumen h2, #tema-resumen h3 { color: #0F172A; line-height: 1.25; letter-spacing: -.02em; }
-        #tema-resumen h2 { margin-top: 1.6em; }
+
+        /* Vista del estudiante: evita el espacio excesivo antes del primer bloque del resumen. */
+        #acc-textos .instruction-card > h4 {
+            margin: 0 0 12px !important;
+        }
+        #tema-resumen > :first-child {
+            margin-top: 0 !important;
+        }
+        #tema-resumen > :last-child {
+            margin-bottom: 0 !important;
+        }
+        #tema-resumen h1, #tema-resumen h2, #tema-resumen h3 {
+            color: #0F172A;
+            line-height: 1.25;
+            letter-spacing: -.02em;
+        }
+        #tema-resumen h1:first-child,
+        #tema-resumen h2:first-child,
+        #tema-resumen h3:first-child {
+            margin-top: 0 !important;
+        }
+        #tema-resumen h2 { margin-top: 1.35em; margin-bottom: .65em; }
+        #tema-resumen p { margin-top: .7em; margin-bottom: .7em; }
         #tema-resumen blockquote {
             margin: 18px 0;
             padding: 14px 18px;
