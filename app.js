@@ -630,11 +630,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const nombreArchivo = (temaActualInfo?.titulo || 'Resumen').replace(/\s+/g, '_') + '.pdf';
 
-        // Asegura que MathJax termine de dibujar las fórmulas antes de capturar el PDF.
-        // Esto no modifica el contenido guardado ni la vista del estudiante.
-        if(window.MathJax?.typesetPromise) {
-            try { await MathJax.typesetPromise([elemento]); } catch(_) {}
-        }
+        // IMPORTANTE: aquí NO se vuelve a ejecutar MathJax.typesetPromise().
+        // La fórmula ya fue renderizada al abrir el tema. Volver a tipografiar el mismo
+        // nodo justo antes del PDF puede dejar varias capas de MathJax superpuestas.
+        // Esperamos únicamente dos frames para asegurar que el render visible esté estable.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+        const esCapaAsistivaMathJax = (node) => {
+            if(!node || node.nodeType !== 1) return false;
+            const tag = (node.tagName || '').toLowerCase();
+            return tag === 'mjx-assistive-mml' ||
+                   node.classList?.contains('MJX_Assistive_MathML') ||
+                   node.getAttribute?.('aria-hidden') === 'true' && tag === 'math';
+        };
 
         const opt = {
             margin:       0.5,
@@ -643,19 +651,33 @@ document.addEventListener('DOMContentLoaded', () => {
             html2canvas:  {
                 scale: 2,
                 useCORS: true,
-                // MathJax añade una copia MathML invisible para accesibilidad.
-                // html2canvas puede interpretarla como visible y duplicar C, q, ΔT, etc.
-                // Se elimina SOLO en la copia temporal usada para crear el PDF.
+                backgroundColor: '#FFFFFF',
+
+                // Evita que html2canvas capture la copia MathML invisible que MathJax
+                // mantiene para accesibilidad. La fórmula visual (mjx-container) se conserva.
+                ignoreElements: (node) => esCapaAsistivaMathJax(node),
+
+                // Refuerzo sobre la copia temporal usada por html2canvas. No modifica
+                // la vista del estudiante ni el contenido original de la página.
                 onclone: (clonedDocument) => {
                     const resumenPDF = clonedDocument.getElementById('tema-resumen');
                     if(!resumenPDF) return;
-                    resumenPDF.querySelectorAll('mjx-assistive-mml').forEach(el => el.remove());
+
+                    resumenPDF.querySelectorAll(
+                        'mjx-assistive-mml, .MJX_Assistive_MathML'
+                    ).forEach(el => el.remove());
+
+                    // Conserva una sola salida visual de MathJax y evita que elementos
+                    // de accesibilidad ocultos reaparezcan durante la captura.
+                    resumenPDF.querySelectorAll('mjx-container').forEach(container => {
+                        container.querySelectorAll('[aria-hidden="true"] math').forEach(el => el.remove());
+                    });
                 }
             },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(elemento).save();
+        await html2pdf().set(opt).from(elemento).save();
     });
 
     // ==========================================
@@ -1141,8 +1163,14 @@ window.abrirTema = async function(temaId, matId, matNombre, modNombre) {
         const resBox = document.getElementById('tema-resumen');
         if (resBox) {
             resBox.innerHTML = typeof marked !== 'undefined' ? marked.parse(data.resumen_teorico || "") : data.resumen_teorico;
-            if(window.MathJax) {
-                MathJax.typesetPromise([resBox]).catch((err) => console.log('Error renderizando LaTeX:', err));
+            if(window.MathJax?.typesetPromise) {
+                // Renderiza las fórmulas UNA sola vez al cargar el tema y espera a que
+                // terminen antes de mostrar la vista. Así el PDF solo captura la salida final.
+                try {
+                    await MathJax.typesetPromise([resBox]);
+                } catch(err) {
+                    console.log('Error renderizando LaTeX:', err);
+                }
             }
         }
 
