@@ -291,13 +291,28 @@ window.mostrarRecurso = function(id, nombreRecurso) {
     document.getElementById('menu-recursos').classList.add('hidden');
     document.querySelectorAll('.recurso-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    document.getElementById('subtitulo-recursos').textContent = nombreRecurso;
+
+    const subtitulo = document.getElementById('subtitulo-recursos');
+    if(subtitulo) {
+        // En "Resumen y Textos" evitamos repetir el nombre debajo del título del tema.
+        if(id === 'acc-textos') {
+            subtitulo.classList.add('hidden');
+        } else {
+            subtitulo.textContent = nombreRecurso;
+            subtitulo.classList.remove('hidden');
+        }
+    }
 }
 
 window.volverRecursos = function() {
     document.getElementById('menu-recursos').classList.remove('hidden');
     document.querySelectorAll('.recurso-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById('subtitulo-recursos').textContent = "Recursos de aprendizaje";
+
+    const subtitulo = document.getElementById('subtitulo-recursos');
+    if(subtitulo) {
+        subtitulo.textContent = "Recursos de aprendizaje";
+        subtitulo.classList.remove('hidden');
+    }
 }
 
 window.switchAdminTab = function(tabName) {
@@ -451,12 +466,13 @@ window.editorInsertarFormula = function() {
 };
 
 window.editorInsertarConcepto = function() {
-    const etiqueta = prompt('Texto del botón o concepto (ej.: ¿Qué es electronegatividad?):');
+    const etiqueta = prompt('Escribe la palabra o frase que funcionará como concepto emergente:');
     if(!etiqueta) return;
     const contenido = prompt('Escribe la explicación que aparecerá en la ventana emergente:');
     if(!contenido) return;
     const codificado = encodeURIComponent(contenido.trim());
-    insertHTMLAtEditor(`<button type="button" class="concept-link" data-concept="${escapeAttr(codificado)}"><i class="fas fa-circle-info"></i>${escapeHTML(etiqueta.trim())}</button>&nbsp;`);
+    // Se inserta como texto normal azul y clicable, no como botón.
+    insertHTMLAtEditor(`<span class="concept-link" data-concept="${escapeAttr(codificado)}">${escapeHTML(etiqueta.trim())}</span>&nbsp;`);
 };
 
 window.editorInsertarTabla = function() {
