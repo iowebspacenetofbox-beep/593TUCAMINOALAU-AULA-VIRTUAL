@@ -829,20 +829,32 @@
         .rich-inline-image { max-width: min(100%, 780px); border-radius: 15px; cursor: zoom-in; box-shadow: 0 12px 30px rgba(15,23,42,.14); border: 1px solid #E2E8F0; }
         .rich-figure figcaption { color: #64748B; font-size: 12px; margin-top: 8px; }
         .concept-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 6px 10px;
-            margin: 2px 1px;
-            border-radius: 999px;
-            background: #EEF2FF;
-            color: #4338CA;
-            border: 1px solid #C7D2FE;
-            box-shadow: none;
-            font-size: 13px;
-            font-weight: 800;
+            display: inline;
+            padding: 0 !important;
+            margin: 0;
+            border: 0 !important;
+            border-radius: 0;
+            background: transparent !important;
+            color: #2563EB !important;
+            box-shadow: none !important;
+            font: inherit;
+            font-weight: 700;
+            line-height: inherit;
+            vertical-align: baseline;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            text-decoration: none;
         }
-        .concept-link:hover { background: #E0E7FF; transform: translateY(-1px); box-shadow: none; }
+        .concept-link:hover {
+            background: transparent !important;
+            color: #1D4ED8 !important;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transform: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+        }
 
         /* EDITOR VISUAL ADMIN */
         .rich-editor-wrap {
@@ -1127,7 +1139,7 @@
             <div style="display: flex; align-items: center; gap: 12px;">
                 <span style="font-size: 13px; font-weight: 700;" id="user-display-name">Usuario</span>
                 <button id="btn-ir-admin" class="btn-danger hidden" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-cog"></i> Admin</button>
-                <button class="btn-outline btn-logout" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-sign-out-alt"></i> Salir</button>
+                <button class="btn-outline btn-logout" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
             </div>
         </header>
 
@@ -1274,8 +1286,8 @@
 
             <!-- MENÚ HORIZONTAL DE RECURSOS -->
             <div id="menu-recursos" class="flex-horizontal" style="justify-content: center; gap: 20px;">
-                <button class="btn-recurso" onclick="mostrarRecurso('acc-textos', 'Textos y Resumen')">
-                    <i class="fas fa-book-open"></i> <span>1. Textos y Resumen</span>
+                <button class="btn-recurso" onclick="mostrarRecurso('acc-textos', 'Resumen y Textos')">
+                    <i class="fas fa-book-open"></i> <span>1. Resumen y Textos</span>
                 </button>
                 <button class="btn-recurso" onclick="mostrarRecurso('acc-videos', 'Videos Explicativos')">
                     <i class="fas fa-video"></i> <span>2. Videos Explicativos</span>
@@ -1291,7 +1303,7 @@
             <!-- CONTENIDO: TEXTOS -->
             <div id="acc-textos" class="recurso-content hidden">
                 <div class="instruction-card" style="margin-top: 0; border: none; box-shadow: none; padding: 0;">
-                    <h4 style="margin-top: 0; color: var(--primary-light); font-size: 18px;">Resumen y Síntesis</h4>
+                    <h4 style="margin-top: 0; color: var(--primary-light); font-size: 18px;">Resumen</h4>
                     <div id="tema-resumen" style="line-height: 1.7; font-size: 15px; background: #F8FAFC; padding: 20px; border-radius: 8px;"></div>
                     <button id="btn-descargar-pdf" class="btn-primary" style="margin-top: 20px;"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
                 </div>
